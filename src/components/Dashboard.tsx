@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import {
   Box,
   Button,
@@ -10,50 +10,54 @@ import {
   Toolbar,
   Avatar,
   Skeleton,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../services/authService";
 import {
-  fetchBalance,
-  deposit as depositApi,
-  withdraw as withdrawApi,
-  fetchTransactions,
-} from "../utils/mockApi";
-import TransactionsTable from "./TransactionsTable";
-import { Transaction } from "../common/interfaces/transactions.interface";
+  getBalance,
+  deposit,
+  withdraw,
+  getTransactions,
+} from "../services/bankingService";
 import DarkModeToggle from "./DarkMofeToggle";
+
+// Lazy loading
+const TransactionsTable = React.lazy(() => import("./TransactionsTable"));
 
 const Dashboard: React.FC = () => {
   const [balance, setBalance] = useState<number>(0);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<any[]>([]);
   const [amount, setAmount] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
+  const [toastOpen, setToastOpen] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string>("");
+  const [toastSeverity, setToastSeverity] = useState<"success" | "error">(
+    "success"
+  );
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchBalance().then((data) => {
-      setBalance(data);
-      setLoading(false);
-    });
-  }, []);
-
-  // Fetch transactions once when the component mounts
-  useEffect(() => {
-    const loadTransactions = async () => {
+    const fetchData = async () => {
       try {
-        const data = await fetchTransactions(); // Fetch transactions
-        console.log("Fetched transactions:", data); // Debug 
-        setTransactions(data); 
+        const balance = await getBalance();
+        setBalance(balance);
+
+        const transactions = await getTransactions();
+        setTransactions(transactions);
       } catch (error) {
-        console.error("Error fetching transactions:", error);
+        console.error("Error loading dashboard data:", error);
+        setError("Failed to load data.");
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     };
 
-    loadTransactions(); // Fetch transactions on mount
-  }, []); 
+    fetchData();
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -70,23 +74,65 @@ const Dashboard: React.FC = () => {
     setError("");
     try {
       const updatedBalance =
-        type === "deposit"
-          ? await depositApi(parsed)
-          : await withdrawApi(parsed);
+        type === "deposit" ? await deposit(parsed) : await withdraw(parsed);
+
+      const updatedTransactions = await getTransactions();
+
       setBalance(updatedBalance);
+      setTransactions(updatedTransactions);
       setAmount("");
-    } catch (err) {
-      if (typeof err === "string") setError(err);
+      setToastMessage(
+        `${type === "deposit" ? "Deposit" : "Withdrawal"} successful!`
+      );
+      setToastSeverity("success");
+      setToastOpen(true);
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Transaction failed");
+      setToastMessage("Transaction failed");
+      setToastSeverity("error");
+      setToastOpen(true);
     }
   };
 
-  console.log("Transactions in state:", transactions);
+  // Mui Avatar random name's color
+  function stringToColor(string: string) {
+    let hash = 0;
+    let i;
+
+    /* eslint-disable no-bitwise */
+    for (i = 0; i < string.length; i += 1) {
+      hash = string.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    let color = "#";
+
+    for (i = 0; i < 3; i += 1) {
+      const value = (hash >> (i * 8)) & 0xff;
+      color += `00${value.toString(16)}`.slice(-2);
+    }
+    /* eslint-enable no-bitwise */
+
+    return color;
+  }
+
+  function stringAvatar(name: string) {
+    return {
+      sx: {
+        bgcolor: stringToColor(name),
+      },
+      children: `${name.split(" ")[0][0]}${name.split(" ")[1][0]}`,
+    };
+  }
+
+  const handleToastClose = () => {
+    setToastOpen(false);
+  };
 
   return (
     <>
       <AppBar position="static">
         <Toolbar>
-          <Avatar>A</Avatar>
+          <Avatar {...stringAvatar("Alaa Mekki")} />
           <Typography ml={2} variant="h6" sx={{ flexGrow: 1 }}>
             Bank Dashboard
           </Typography>
@@ -96,7 +142,6 @@ const Dashboard: React.FC = () => {
           </Button>
         </Toolbar>
       </AppBar>
-
       <Container maxWidth="sm">
         <Box mt={6} textAlign="center">
           {loading ? (
@@ -105,7 +150,7 @@ const Dashboard: React.FC = () => {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                height: "200px", 
+                height: "200px",
               }}
             >
               <Box sx={{ width: 300 }}>
@@ -152,7 +197,28 @@ const Dashboard: React.FC = () => {
           )}
         </Box>
       </Container>
-      <TransactionsTable loading={loading} transactions={transactions} />
+
+      {/* Lazy loading the TransactionsTable component */}
+      <Suspense
+        fallback={<Skeleton variant="rectangular" width="100%" height={400} />}
+      >
+        <TransactionsTable loading={loading} transactions={transactions} />
+      </Suspense>
+
+      {/* Toast for success or error */}
+      <Snackbar
+        open={toastOpen}
+        autoHideDuration={3000}
+        onClose={handleToastClose}
+      >
+        <Alert
+          onClose={handleToastClose}
+          severity={toastSeverity}
+          sx={{ width: "100%" }}
+        >
+          {toastMessage}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

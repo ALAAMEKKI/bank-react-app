@@ -1,4 +1,3 @@
-// src/pages/DashboardPage.tsx
 import React from 'react';
 import Dashboard from '../components/Dashboard';
 

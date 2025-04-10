@@ -12,8 +12,8 @@ const TransactionsTable = ({
 }) => {
   if (loading) {
     return (
-      <TableContainer sx={{ marginTop:"50px"  }} component={Paper}>
-        <Table  sx={{ minWidth: 650 }} aria-label="transactions table">
+      <TableContainer sx={{ marginTop: "50px" }} component={Paper}>
+        <Table sx={{ minWidth: 650 }} aria-label="transactions table">
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
@@ -23,7 +23,7 @@ const TransactionsTable = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {/* Skeleton  */}
+            {/* Skeleton */}
             {Array.from({ length: 5 }).map((_, index) => (
               <TableRow key={index}>
                 <TableCell component="th" scope="row">
@@ -47,8 +47,8 @@ const TransactionsTable = ({
   }
 
   return (
-    <TableContainer  sx={{ marginTop:"50px"  }} component={Paper}>
-      <Table sx={{ minWidth: 650,  }}  aria-label="transactions table">
+    <TableContainer sx={{ marginTop: "50px" }} component={Paper}>
+      <Table sx={{ minWidth: 650 }} aria-label="transactions table">
         <TableHead>
           <TableRow>
             <TableCell>ID</TableCell>
@@ -58,27 +58,31 @@ const TransactionsTable = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {transactions.map((transaction: Transaction) => (
-            <TableRow key={transaction.id}>
-              <TableCell component="th" scope="row">
-                {transaction.id}
-              </TableCell>
-              <TableCell
-                sx={
-                  transaction.type === 'withdrawal'
-                    ? { color: deepOrange[500] }
-                    : { color: green[500] }
-                }
-                align="right"
-              >
-                {transaction.type}
-              </TableCell>
-              <TableCell align="right">${transaction.amount}</TableCell>
-              <TableCell align="right">
-                {new Date(transaction.date).toLocaleString()}
-              </TableCell>
-            </TableRow>
-          ))}
+          {/* Reverse the order of transactions */}
+          {transactions
+            .slice() 
+            .reverse()
+            .map((transaction: Transaction) => (
+              <TableRow key={transaction.id}>
+                <TableCell component="th" scope="row">
+                  {transaction.id}
+                </TableCell>
+                <TableCell
+                  sx={
+                    transaction.type === 'withdrawal'
+                      ? { color: deepOrange[500] }
+                      : { color: green[500] }
+                  }
+                  align="right"
+                >
+                  {transaction.type}
+                </TableCell>
+                <TableCell align="right">${transaction.amount}</TableCell>
+                <TableCell align="right">
+                  {new Date(transaction.date).toLocaleString()}
+                </TableCell>
+              </TableRow>
+            ))}
         </TableBody>
       </Table>
     </TableContainer>

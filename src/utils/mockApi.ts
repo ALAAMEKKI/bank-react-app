@@ -1,70 +1,69 @@
-let mockBalance = 1000; // Simulated starting balance
+import AxiosMockAdapter from "axios-mock-adapter";
+import api from "../API";
 
-interface Transaction {
-    id: number;
-    type: 'deposit' | 'withdrawal';
-    amount: number;
-    date: string;
-  }
-const transactions: { id: number; type: 'deposit' | 'withdrawal'; amount: number; date: string }[] = []; // Track transactions
-let transactionId = 1; // Transaction ID counter
+let mockBalance = 1000;
+let transactionId = 1;
+const transactions = [
+  {
+    id: transactionId++,
+    type: "deposit",
+    amount: 500,
+    date: new Date().toISOString(),
+  },
+];
 
-export const fetchBalance = (): Promise<number> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(mockBalance);
-    }, 500); // Simulate delay
-  });
+const mockUser = {
+  username: "alaamekki",
+  name: "Alaa Mekki",
+  email: "alaa@bankapp.com",
+  createdAt: "2024-01-01T00:00:00Z",
 };
 
-export const fetchTransactions = (): Promise<Transaction[]> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(transactions); // Return all transactions
-      }, 1000); // Simulate delay
-    });
-  };
 
+// create mock data api
+const mock = new AxiosMockAdapter(api, { delayResponse: 500 });
 
-  export const deposit = (amount: number): Promise<number> => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (amount <= 0) {
-          reject('Invalid amount');
-        } else {
-          mockBalance += amount;
-          // Add transaction to the history
-          transactions.push({
-            id: transactionId++,
-            type: 'deposit',
-            amount,
-            date: new Date().toISOString(),
-          });
-          resolve(mockBalance);
-        }
+mock.onGet("/balance").reply(200, { balance: mockBalance });
 
-      }, 500);
-      console.log(transactions,"t");
-      
-    });
-  };
+mock.onGet("/transactions").reply(200, { transactions });
 
-  export const withdraw = (amount: number): Promise<number> => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (amount <= 0 || amount > mockBalance) {
-          reject('Invalid or insufficient amount');
-        } else {
-          mockBalance -= amount;
-          // Add transaction to the history
-          transactions.push({
-            id: transactionId++,
-            type: 'withdrawal',
-            amount,
-            date: new Date().toISOString(),
-          });
-          resolve(mockBalance);
-        }
-      }, 500);
-    });
-  };
+mock.onPost("/deposit").reply((config) => {
+  const { amount } = JSON.parse(config.data);
+  if (amount <= 0) return [400, { message: "Invalid amount" }];
+  mockBalance += amount;
+  transactions.push({
+    id: transactionId++,
+    type: "deposit",
+    amount,
+    date: new Date().toISOString(),
+  });
+  return [200, { balance: mockBalance }];
+});
+
+mock.onPost("/withdraw").reply((config) => {
+  const { amount } = JSON.parse(config.data);
+  if (amount <= 0 || amount > mockBalance)
+    return [400, { message: "Insufficient funds" }];
+  mockBalance -= amount;
+  transactions.push({
+    id: transactionId++,
+    type: "withdrawal",
+    amount,
+    date: new Date().toISOString(),
+  });
+  return [200, { balance: mockBalance }];
+});
+
+mock.onGet("/user").reply(200, { user: mockUser });
+
+mock.onGet("/summary").reply(200, {
+  totalDeposited: transactions
+    .filter((t) => t.type === "deposit")
+    .reduce((acc, t) => acc + t.amount, 0),
+  totalWithdrawn: transactions
+    .filter((t) => t.type === "withdrawal")
+    .reduce((acc, t) => acc + t.amount, 0),
+  currentBalance: mockBalance,
+});
+
+export default mock;

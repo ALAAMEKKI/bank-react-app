@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { TextField, Button, Container, Typography, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { login } from "../services/authService";
+import DarkModeToggle from "./DarkMofeToggle";
 
 const LoginForm: React.FC = () => {
   const [username, setUsername] = useState<string>("");
@@ -61,6 +62,10 @@ const LoginForm: React.FC = () => {
             Login
           </Button>
         </form>
+        <div style={{position:"fixed" , top:"0" , right:"0"}}>
+        <DarkModeToggle />
+
+        </div>
       </Box>
     </Container>
   );
