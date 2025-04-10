@@ -22,7 +22,6 @@ const LoginForm: React.FC = () => {
   return (
     <Container maxWidth="sm">
       <Box mt={10} textAlign="center">
-        {/* Beautiful Title */}
         <Typography
           variant="h2"
           component="h1"

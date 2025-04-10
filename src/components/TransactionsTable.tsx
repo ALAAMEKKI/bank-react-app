@@ -12,8 +12,8 @@ const TransactionsTable = ({
 }) => {
   if (loading) {
     return (
-      <TableContainer  component={Paper}>
-        <Table  sx={{ minWidth: 650, marginTop:"50px"  }} aria-label="transactions table">
+      <TableContainer sx={{ marginTop:"50px"  }} component={Paper}>
+        <Table  sx={{ minWidth: 650 }} aria-label="transactions table">
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
@@ -23,7 +23,7 @@ const TransactionsTable = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {/* Render Skeleton rows as placeholders */}
+            {/* Skeleton  */}
             {Array.from({ length: 5 }).map((_, index) => (
               <TableRow key={index}>
                 <TableCell component="th" scope="row">
@@ -47,8 +47,8 @@ const TransactionsTable = ({
   }
 
   return (
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650, marginTop:"50px"  }} aria-label="transactions table">
+    <TableContainer  sx={{ marginTop:"50px"  }} component={Paper}>
+      <Table sx={{ minWidth: 650,  }}  aria-label="transactions table">
         <TableHead>
           <TableRow>
             <TableCell>ID</TableCell>

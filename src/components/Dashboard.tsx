@@ -21,6 +21,7 @@ import {
 } from "../utils/mockApi";
 import TransactionsTable from "./TransactionsTable";
 import { Transaction } from "../common/interfaces/transactions.interface";
+import DarkModeToggle from "./DarkMofeToggle";
 
 const Dashboard: React.FC = () => {
   const [balance, setBalance] = useState<number>(0);
@@ -43,11 +44,11 @@ const Dashboard: React.FC = () => {
       try {
         const data = await fetchTransactions(); // Fetch transactions
         console.log("Fetched transactions:", data); // Debug 
-        setTransactions(data); // Set the state with fetched data
+        setTransactions(data); 
       } catch (error) {
         console.error("Error fetching transactions:", error);
       } finally {
-        setLoading(false); // Stop loading indicator once data is fetched
+        setLoading(false); 
       }
     };
 
@@ -89,6 +90,7 @@ const Dashboard: React.FC = () => {
           <Typography ml={2} variant="h6" sx={{ flexGrow: 1 }}>
             Bank Dashboard
           </Typography>
+          <DarkModeToggle />
           <Button color="inherit" onClick={handleLogout}>
             Logout
           </Button>
@@ -103,7 +105,7 @@ const Dashboard: React.FC = () => {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                height: "200px", // Set height for proper vertical centering
+                height: "200px", 
               }}
             >
               <Box sx={{ width: 300 }}>

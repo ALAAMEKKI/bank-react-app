@@ -1,15 +1,15 @@
 {
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "module": "ESNext",
+    "strictPropertyInitialization": false,
     "target": "ES6",
-    "moduleResolution": "Node",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "types": ["jest", "node"]
+    "strict": true,
+    "module": "CommonJS"
   },
-  "include": ["src", "src/__tests__", "setupTests.ts", "babel.config.js"]
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
 }
