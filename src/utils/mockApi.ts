@@ -13,9 +13,9 @@ const transactions = [
 ];
 
 const mockUser = {
-  username: "alaamekki",
-  name: "Alaa Mekki",
-  email: "alaa@bankapp.com",
+  username: "AM25",
+  name: "User",
+  email: "user@bankapp.com",
   createdAt: "2024-01-01T00:00:00Z",
 };
 

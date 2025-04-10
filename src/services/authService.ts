@@ -1,5 +1,5 @@
 export const login = (username: string, password: string): { success: boolean; token?: string } => {
-    if (username === 'alaamekki' && password === 'password') {
+    if (username === 'AM25' && password === 'password') {
       const token = 'fake-jwt-token';
       localStorage.setItem('token', token);
       return { success: true, token };

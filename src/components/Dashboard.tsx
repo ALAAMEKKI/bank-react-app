@@ -132,7 +132,7 @@ const Dashboard: React.FC = () => {
     <>
       <AppBar position="static">
         <Toolbar>
-          <Avatar {...stringAvatar("Alaa Mekki")} />
+          <Avatar {...stringAvatar("A M")} />
           <Typography ml={2} variant="h6" sx={{ flexGrow: 1 }}>
             Bank Dashboard
           </Typography>
